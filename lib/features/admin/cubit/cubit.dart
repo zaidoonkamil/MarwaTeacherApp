@@ -792,15 +792,23 @@ class AdminCubit extends Cubit<AdminStates> {
 
 
   List<VimeoVideoModel> videos = [];
-  void getVideosFromFolder({required BuildContext context, required String folderId}) {
-    emit(GetVideosLoadingState());
+  String? nextPageUrl;
+  void getVideosFromFolder({required BuildContext context, required String folderId, bool loadMore = false}) {
+    if (!loadMore) {
+      emit(GetVideosLoadingState());
+      videos.clear();
+      nextPageUrl = null;
+    }final url = nextPageUrl ?? '/me/projects/$folderId/videos';
+
     DioHelperVimeo.getDataVimeo(
-      url: '/me/projects/$folderId/videos',
+      url: url,
       token: 'Bearer e9737174eff0c80d3ea0b1609d2275ba',
     ).then((value) {
-      videos = (value.data['data'] as List)
+      final newVideos = (value.data['data'] as List)
           .map((item) => VimeoVideoModel.fromJson(item))
           .toList();
+      videos.addAll(newVideos);
+      nextPageUrl = value.data['paging']?['next'];
       emit(GetVideosSuccessState());
     }).catchError((error) {
       if (error is DioError) {

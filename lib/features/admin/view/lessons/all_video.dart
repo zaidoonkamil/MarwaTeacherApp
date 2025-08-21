@@ -51,8 +51,19 @@ class AllVideo extends StatelessWidget {
                         SizedBox(height: 26,),
                         cubit.videos.isNotEmpty? Expanded(
                           child: ListView.builder(
-                            itemCount: cubit.videos.length,
+                            itemCount: cubit.videos.length + (cubit.nextPageUrl != null ? 1 : 0),
                             itemBuilder: (context, index) {
+                              if (index == cubit.videos.length) {
+                                cubit.getVideosFromFolder(context: context, folderId: '26233367', loadMore: true);
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(color: primaryColor),
+                                  ),
+                                );
+                              }
+
+
                               String formatDuration(int seconds) {
                                 final minutes = seconds ~/ 60;
                                 final remainingSeconds = seconds % 60;
